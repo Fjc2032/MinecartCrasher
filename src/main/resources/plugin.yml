@@ -1,0 +1,8 @@
+name: MinecartCrasher
+version: '1.0-beta'
+main: dev.Fjc.minecartCrasher.MinecartCrasher
+api-version: '1.21'
+prefix: MinecartCrasher
+load: STARTUP
+authors: [ Fjc ]
+description: Crashes your minecart with a bang when it collides with objects.
