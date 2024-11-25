@@ -7,8 +7,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.minecart.RideableMinecart;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.vehicle.VehicleCollisionEvent;
+import org.bukkit.event.vehicle.VehicleBlockCollisionEvent;
+import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
@@ -37,7 +41,8 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
         // Plugin shutdown logic
     }
 
-    public void onMineCartCollision(VehicleCollisionEvent event) {
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onMinecartBlockCollision(VehicleBlockCollisionEvent event) {
         if (event.getVehicle() instanceof Minecart) {
             Minecart minecart = (Minecart) event.getVehicle();
             World world = minecart.getWorld();
@@ -51,6 +56,20 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
             }
 
 
+        }
+    }
+
+    @EventHandler
+    public void onMinecartEntityCollision(VehicleEntityCollisionEvent event) {
+        if (event.getVehicle() instanceof Minecart) {
+            RideableMinecart minecart = (RideableMinecart) event.getVehicle();
+            World world = minecart.getWorld();
+            Player player = (Player) minecart.getPassengers();
+
+            if (minecart.getPassengers().contains(player)) {
+                world.createExplosion(minecart.getLocation(), 12F, false, false);
+                player.sendMessage(ChatColor.DARK_RED + "Your train collided with some other entity! Enjoy the chaos.");
+            }
         }
     }
 
@@ -76,8 +95,8 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
                 return true;
             } else {
                 reloadConfig();
-                player.sendMessage("Configuration reloaded");
-                player.sendMessage("Crashing velocity is now " + this.getConfig().get("CrashTerminal.Velocity"));
+                player.sendMessage(ChatColor.DARK_GREEN + "Configuration reloaded");
+                player.sendMessage(ChatColor.GREEN + "Crash velocity is now " + this.getConfig().get("CrashTerminal.Velocity"));
             }
         }
         return false;
