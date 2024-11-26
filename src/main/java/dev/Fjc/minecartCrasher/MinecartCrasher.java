@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.vehicle.VehicleBlockCollisionEvent;
+import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
@@ -28,6 +29,7 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         getServer().getPluginManager().registerEvents(this, this);
+        getLogger().info(ChatColor.AQUA + "Debug: Plugin startup successful.");
         this.saveDefaultConfig();
         this.getConfig().set("CrashTerminal.Velocity", 8);
         getConfig().options().copyDefaults(true);
@@ -38,6 +40,8 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+        saveDefaultConfig();
+        getLogger().info("Shutdown successful.");
         // Plugin shutdown logic
     }
 
@@ -69,6 +73,20 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
             if (minecart.getPassengers().contains(player)) {
                 world.createExplosion(minecart.getLocation(), 12F, false, false);
                 player.sendMessage(ChatColor.DARK_RED + "Your train collided with some other entity! Enjoy the chaos.");
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onMinecartDestoroy(VehicleDestroyEvent event, Player attacker) {
+        if (event.getVehicle() instanceof Minecart) {
+            Minecart minecart = (Minecart) event.getVehicle();
+            World world = minecart.getWorld();
+            Player player = (Player) attacker;
+
+            if (event.getVehicle() != null && event.getAttacker().equals(player)) {
+                world.createExplosion(minecart.getLocation(), 16F, false, false);
+                player.sendMessage(ChatColor.DARK_RED + "Damn, your train exploded on impact.");
             }
         }
     }
