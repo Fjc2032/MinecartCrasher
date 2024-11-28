@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.minecart.RideableMinecart;
@@ -54,9 +55,16 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
             Minecart minecart = (Minecart) event.getVehicle();
             World world = minecart.getWorld();
             Vector velocity = minecart.getVelocity();
-            Player player = (Player) minecart.getPassengers();
 
-            if (minecart.getVelocity().equals(this.getConfig().get("CrashTerminal.Velocity"))) {
+            Player player = null;
+            for (Entity passenger : minecart.getPassengers()) {
+                if (passenger instanceof Player) {
+                    player = (Player) passenger;
+                    break;
+                }
+            }
+
+            if (player != null && minecart.getVelocity().equals(this.getConfig().get("CrashTerminal.Velocity"))) {
                 //Checks if the velocity of the vehicle is at a certain point defined in config.yml
                 world.createExplosion(minecart.getLocation(), 20F, true, false);
                 spawnExplosionRandomLocation(minecart.getLocation(), world, (Integer) this.getConfig().get("CrashTerminal.RandomAmount"), (Integer) this.getConfig().get("CrashTerminal.RandomRadius"));
@@ -73,9 +81,16 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
         if (event.getVehicle() instanceof Minecart) {
             RideableMinecart minecart = (RideableMinecart) event.getVehicle();
             World world = minecart.getWorld();
-            Player player = (Player) minecart.getPassengers();
 
-            if (minecart.getPassengers().contains(player)) {
+            Player player = null;
+            for (Entity passenger : minecart.getPassengers()) {
+                if (passenger instanceof Player) {
+                    player = (Player) passenger;
+                    break;
+                }
+            }
+
+            if (player != null) {
                 world.createExplosion(minecart.getLocation(), 12F, false, false);
                 player.sendMessage(ChatColor.DARK_RED + "Your train collided with some other entity! Enjoy the chaos.");
             }
@@ -87,9 +102,9 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
         if (event.getVehicle() instanceof Minecart) {
             Minecart minecart = (Minecart) event.getVehicle();
             World world = minecart.getWorld();
-            Player player = (Player) attacker;
 
-            if (event.getVehicle() != null && event.getAttacker().equals(player)) {
+            if (event.getAttacker() instanceof Player) {
+                Player player = (Player) event.getAttacker();
                 world.createExplosion(minecart.getLocation(), 16F, false, (Boolean) this.getConfig().get("initial-break-blocks"));
                 player.sendMessage(ChatColor.DARK_RED + "Damn, your train exploded on impact.");
             }
