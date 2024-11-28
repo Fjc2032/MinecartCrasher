@@ -1,8 +1,14 @@
 name: MinecartCrasher
-version: '1.1-beta'
+version: '1.2-beta'
 main: dev.Fjc.minecartCrasher.MinecartCrasher
 api-version: '1.21'
 prefix: MinecartCrasher
 load: STARTUP
-authors: [ Fjc ]
+authors: [ Fjc, Rat ]
 description: Crashes your minecart with a bang when it collides with objects.
+
+commands:
+  mcrasherreload:
+    description: Reloads the MinecartCrasher plugin
+    permission: fjc.mcrasher.reload
+    default: op

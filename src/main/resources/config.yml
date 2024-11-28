@@ -1,2 +1,20 @@
 CrashTerminal:
+
+  #How fast the minecart needs to move before triggering a crash on impact
   Velocity: 8
+
+  #On impact, there will be explosions nearby. What should the radius be? (in blocks)
+  RandomRadius: 6
+
+  #On impact, how strong should be the explosions be? (Type an integer, followed by "F".
+  #For example, 8F.
+  RandomStrength: 12F
+
+  #After the initial blast, how many explosions should occur randomly? (Type an integer)
+  RandomAmount: 4
+
+#Should the initial blast destroy blocks? (Type a boolean. Cannot be null.)
+initial-break-blocks: false
+
+#Should the following random blasts destroy blocks? (Type a boolean. Cannot be null.)
+random-break-blocks: true

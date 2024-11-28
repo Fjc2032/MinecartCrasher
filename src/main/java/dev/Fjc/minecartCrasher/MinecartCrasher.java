@@ -32,19 +32,22 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
         getLogger().info(ChatColor.AQUA + "Debug: Plugin startup successful.");
         this.saveDefaultConfig();
         this.getConfig().set("CrashTerminal.Velocity", 8);
+        this.getConfig().set("CrashTerminal.RandomRadius", 6);
+        this.getConfig().set("CrashTerminal.RandomStrength", 12F);
+        this.getConfig().set("CrashTerminal.RandomAmount", 4);
+        this.getConfig().set("initial-break-blocks", false);
+        this.getConfig().set("random-break-blocks", true);
         getConfig().options().copyDefaults(true);
         saveConfig();
-        // Plugin startup logic
-
     }
 
     @Override
     public void onDisable() {
         saveDefaultConfig();
         getLogger().info("Shutdown successful.");
-        // Plugin shutdown logic
     }
 
+    //Main handler for block collision explosion
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onMinecartBlockCollision(VehicleBlockCollisionEvent event) {
         if (event.getVehicle() instanceof Minecart) {
@@ -54,9 +57,11 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
             Player player = (Player) minecart.getPassengers();
 
             if (minecart.getVelocity().equals(this.getConfig().get("CrashTerminal.Velocity"))) {
+                //Checks if the velocity of the vehicle is at a certain point defined in config.yml
                 world.createExplosion(minecart.getLocation(), 20F, true, false);
-                spawnExplosionRandomLocation(minecart.getLocation(), world, 4, 6);
+                spawnExplosionRandomLocation(minecart.getLocation(), world, (Integer) this.getConfig().get("CrashTerminal.RandomAmount"), (Integer) this.getConfig().get("CrashTerminal.RandomRadius"));
                 player.sendMessage(ChatColor.DARK_RED + "Your train terminated too fast and has exploded! Do better next time!");
+
             }
 
 
@@ -85,12 +90,13 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
             Player player = (Player) attacker;
 
             if (event.getVehicle() != null && event.getAttacker().equals(player)) {
-                world.createExplosion(minecart.getLocation(), 16F, false, false);
+                world.createExplosion(minecart.getLocation(), 16F, false, (Boolean) this.getConfig().get("initial-break-blocks"));
                 player.sendMessage(ChatColor.DARK_RED + "Damn, your train exploded on impact.");
             }
         }
     }
 
+    //This method handles the random explosion logic
     private void spawnExplosionRandomLocation(Location location, World world, int amount, int r) {
 
         //r = radius, possible range factor of spawned explosion from initial blast
@@ -101,10 +107,11 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
             double offsetZ = (random.nextDouble() * 2 - 1) * r;
 
             Location randomLocation = location.clone().add(offsetX, offsetY, offsetZ);
-            world.createExplosion(randomLocation, 15F, false, false);
+            world.createExplosion(randomLocation, 15F, false, (Boolean) this.getConfig().get("random-break-blocks"));
         }
     }
 
+    //Reload command logic
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("mcrasherreload")) {
             Player player = (Player) sender;
