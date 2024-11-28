@@ -32,7 +32,7 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
         getLogger().info(ChatColor.AQUA + "Debug: Plugin startup successful.");
         this.saveDefaultConfig();
-        this.getConfig().set("CrashTerminal.Velocity", 8);
+        this.getConfig().set("CrashTerminal.Velocity", 0.1);
         this.getConfig().set("CrashTerminal.RandomRadius", 6);
         this.getConfig().set("CrashTerminal.RandomStrength", 12F);
         this.getConfig().set("CrashTerminal.RandomAmount", 4);
