@@ -1,9 +1,9 @@
 CrashTerminal:
 
-  #How fast the minecart needs to move before triggering a crash on impact
-  Velocity: 8
+  #How fast the minecart needs to move before triggering a crash on impact (Type an integer between 0 and 1)
+  Velocity: 0.1
 
-  #On impact, there will be explosions nearby. What should the radius be? (in blocks)
+  #On impact, there will be explosions nearby. What should the radius be? (Type an integer. Measured in blocks.)
   RandomRadius: 6
 
   #On impact, how strong should be the explosions be? (Type an integer, followed by "F".

@@ -54,7 +54,9 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
         if (event.getVehicle() instanceof Minecart) {
             Minecart minecart = (Minecart) event.getVehicle();
             World world = minecart.getWorld();
-            Vector velocity = minecart.getVelocity();
+
+            //Maps the value of this velocity var to config.yml
+            Vector velocityRand = (Vector) this.getConfig().get("CrashTerminal.Velocity");
 
 
             Player player = null;
@@ -65,10 +67,11 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
                 }
             }
 
-            if (player != null && minecart.getVelocity().equals(this.getConfig().get("CrashTerminal.Velocity"))) {
-                //Checks if the velocity of the vehicle is at a certain point defined in config.yml
+            if (minecart.getVelocity() == velocityRand) {
+                //Checks if the velocity of the vehicle is at a certain point defined by var velocityRand
                 world.createExplosion(minecart.getLocation(), 20F, true, false);
                 spawnExplosionRandomLocation(minecart.getLocation(), world, (Integer) this.getConfig().get("CrashTerminal.RandomAmount"), (Integer) this.getConfig().get("CrashTerminal.RandomRadius"));
+                assert player != null;
                 player.sendMessage(ChatColor.DARK_RED + "Your train terminated too fast and has exploded! Do better next time!");
                 getLogger().info(ChatColor.YELLOW + "Debug: There was a block collision at " + player.getLocation());
 
