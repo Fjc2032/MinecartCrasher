@@ -1,5 +1,7 @@
 package dev.Fjc.minecartCrasher;
 
+import dev.Fjc.minecartCrasher.var.BoundBox;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -9,9 +11,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.minecart.RideableMinecart;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
+import org.bukkit.event.*;
 import org.bukkit.event.vehicle.VehicleBlockCollisionEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
@@ -58,7 +58,8 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
             //Maps the value of this velocity var to config.yml
             Vector velocityRand = (Vector) this.getConfig().get("CrashTerminal.Velocity");
 
-
+            //Checks the array of getPassengers(), if passenger is a player obj, stop the loop.
+            //This should prevent the stupid illegal cast exception thing
             Player player = null;
             for (Entity passenger : minecart.getPassengers()) {
                 if (passenger instanceof Player) {
@@ -70,7 +71,12 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
             if (minecart.getVelocity() == velocityRand) {
                 //Checks if the velocity of the vehicle is at a certain point defined by var velocityRand
                 world.createExplosion(minecart.getLocation(), 20F, true, false);
+
+                //Summons random explosions based on parameters defined in private spawnExplosionRandomLocation()
+                //Also pulls from config.yml
                 spawnExplosionRandomLocation(minecart.getLocation(), world, (Integer) this.getConfig().get("CrashTerminal.RandomAmount"), (Integer) this.getConfig().get("CrashTerminal.RandomRadius"));
+
+                //Ensures that player can never be null
                 assert player != null;
                 player.sendMessage(ChatColor.DARK_RED + "Your train terminated too fast and has exploded! Do better next time!");
                 getLogger().info(ChatColor.YELLOW + "Debug: There was a block collision at " + player.getLocation());
@@ -86,6 +92,7 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
         if (event.getVehicle() instanceof Minecart) {
             RideableMinecart minecart = (RideableMinecart) event.getVehicle();
             World world = minecart.getWorld();
+
 
             Player player = null;
             for (Entity passenger : minecart.getPassengers()) {
@@ -116,10 +123,25 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onMinecartPlayerCollision(VehicleEntityCollisionEvent event) {
+        if (event.getVehicle() instanceof Minecart) {
+            Minecart minecart = (Minecart) event.getVehicle();
+
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.setVelocity(player.getLocation().getDirection().multiply(-12));
+                event.setCollisionCancelled(true);
+                player.setCollidable(false);
+            }
+
+        }
+    }
+
     //This method handles the random explosion logic
     private void spawnExplosionRandomLocation(Location location, World world, int amount, int r) {
 
         //r = radius, possible range factor of spawned explosion from initial blast
+        //Copies the location of the minecart, then uses random offset values to place explosion away from minecart
         for (int i = 0; i < amount; i++) {
 
             double offsetX = (random.nextDouble() * 2 - 1) * r;
@@ -131,7 +153,7 @@ public final class MinecartCrasher extends JavaPlugin implements Listener {
         }
     }
 
-    //Reload command logic
+    //Reload command logic. Self-explanatory
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("mcrasherreload")) {
             Player player = (Player) sender;
